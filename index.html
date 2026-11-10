@@ -1,0 +1,1574 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Snyk Projects and Issues (unofficial): install it on your Mac with one command</title>
+    <meta name="description" content="Ask Claude about your Snyk account. It lists your repos and projects with their issue counts, explains issues, plans the fixes that clear the most of them and checks whether a package is vulnerable, using your own Snyk token. It is read-only unless you turn on write tools." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://wpp-jamie-mills.github.io/snyk-mcp-site/" />
+    <meta property="og:title" content="Snyk Projects and Issues (unofficial): install it on your Mac with one command" />
+    <meta property="og:description" content="Ask Claude about your Snyk account. It lists your repos and projects with their issue counts, explains issues, plans the fixes that clear the most of them and checks whether a package is vulnerable, using your own Snyk token. It is read-only unless you turn on write tools." />
+    <meta property="og:image" content="https://wpp-jamie-mills.github.io/snyk-mcp-site/assets/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="site-build" content="45a8fbface21dde8305dbcbc3a546ceff58b3abb" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%230b1020%27%2F%3E%3Crect%20x%3D%276.5%27%20y%3D%275.5%27%20width%3D%2719%27%20height%3D%2713%27%20rx%3D%273%27%20fill%3D%27none%27%20stroke%3D%27%23f2f2f2%27%20stroke-width%3D%272.2%27%2F%3E%3Cline%20x1%3D%277.5%27%20y1%3D%2717.5%27%20x2%3D%2716%27%20y2%3D%2727%27%20stroke-linecap%3D%27round%27%20stroke%3D%27%23f2f2f2%27%20stroke-width%3D%272.2%27%2F%3E%3Cline%20x1%3D%2724.5%27%20y1%3D%2717.5%27%20x2%3D%2716%27%20y2%3D%2727%27%20stroke-linecap%3D%27round%27%20stroke%3D%27%23f2f2f2%27%20stroke-width%3D%272.2%27%2F%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2713%27%20r%3D%273%27%20fill%3D%27%23ffffff%27%20stroke%3D%27%236d5efc%27%20stroke-width%3D%272%27%2F%3E%3C%2Fsvg%3E" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="alternate" type="text/markdown" href="llms.txt" />
+    <link
+      rel="preload"
+      href="fonts/InstrumentSerif-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="fonts/Satoshi-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <style>
+      @font-face {
+        font-family: "Instrument Serif";
+        src: url("fonts/InstrumentSerif-Regular.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Satoshi";
+        src: url("fonts/Satoshi-Variable.woff2") format("woff2");
+        font-weight: 300 900;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "IBM Plex Mono";
+        src: url("fonts/IBMPlexMono-Regular.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      /* Tokens: shadcn/ui semantic names. Dark is the primary direction; light follows the system setting. */
+      :root {
+        color-scheme: dark;
+        --radius: 0.625rem;
+        --background: oklch(0.12 0.003 260);
+        --foreground: oklch(0.955 0.005 250);
+        --card: oklch(0.165 0.006 260);
+        --card-foreground: oklch(0.955 0.005 250);
+        --popover: oklch(0.18 0.006 260);
+        --popover-foreground: oklch(0.955 0.005 250);
+        --primary: oklch(0.955 0.004 90);
+        --primary-foreground: oklch(0.17 0.004 260);
+        --secondary: oklch(0.22 0.007 260);
+        --secondary-foreground: oklch(0.94 0.005 250);
+        --muted: oklch(0.22 0.007 260);
+        --muted-foreground: oklch(0.71 0.012 250);
+        --accent: oklch(0.24 0.025 255);
+        --accent-foreground: oklch(0.82 0.11 255);
+        --border: oklch(0.9 0.01 250 / 0.14);
+        --input: oklch(0.9 0.01 250 / 0.2);
+        --ring: oklch(0.72 0.12 255);
+        --success: oklch(0.77 0.14 155);
+        --success-foreground: oklch(0.16 0.04 155);
+        --code: oklch(0.105 0.004 260);
+        --code-foreground: oklch(0.89 0.009 250);
+        --code-muted: oklch(0.7 0.012 250);
+        --code-border: oklch(0.9 0.01 250 / 0.12);
+        --highlight: oklch(1 0 0 / 0.035);
+        --sheen: oklch(1 0 0 / 0.025);
+        --shadow-raised: 0 24px 48px -24px oklch(0 0 0 / 0.7);
+
+        --font-display: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
+        --font-sans:
+          "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        --radius-sm: calc(var(--radius) * 0.6);
+        --radius-md: calc(var(--radius) * 0.8);
+        --radius-lg: var(--radius);
+        --radius-xl: calc(var(--radius) * 1.4);
+        --radius-2xl: calc(var(--radius) * 1.8);
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --rail: 78rem;
+        --gutter: clamp(1rem, 0.6rem + 1.8vw, 2rem);
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          color-scheme: light;
+          --background: oklch(0.965 0.004 90);
+          --foreground: oklch(0.17 0.004 260);
+          --card: oklch(0.995 0.002 90);
+          --card-foreground: oklch(0.17 0.004 260);
+          --popover: oklch(0.995 0.002 90);
+          --popover-foreground: oklch(0.17 0.004 260);
+          --primary: oklch(0.17 0.004 260);
+          --primary-foreground: oklch(0.975 0.003 90);
+          --secondary: oklch(0.925 0.004 100);
+          --secondary-foreground: oklch(0.22 0.004 260);
+          --muted: oklch(0.925 0.004 100);
+          --muted-foreground: oklch(0.45 0.01 255);
+          --accent: oklch(0.925 0.018 255);
+          --accent-foreground: oklch(0.34 0.14 255);
+          --border: oklch(0.84 0.006 255 / 0.75);
+          --input: oklch(0.84 0.006 255 / 0.9);
+          --ring: oklch(0.49 0.17 255);
+          --success: oklch(0.49 0.13 155);
+          --success-foreground: oklch(0.98 0.015 150);
+          --code: oklch(0.13 0.006 260);
+          --code-foreground: oklch(0.9 0.008 250);
+          --code-muted: oklch(0.72 0.012 250);
+          --code-border: oklch(0.13 0.006 260);
+          --highlight: oklch(1 0 0 / 0.6);
+          --sheen: transparent;
+          --shadow-raised: 0 24px 48px -28px oklch(0.2 0.01 260 / 0.28);
+        }
+      }
+
+      /* Base */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 1.5rem;
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--foreground);
+        font: 400 1rem/1.65 var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+      :focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+      }
+      a {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: var(--muted-foreground);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.2em;
+        transition: text-decoration-color 140ms var(--ease);
+      }
+      a:hover {
+        text-decoration-color: currentColor;
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-weight: 600;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+      }
+      h2 {
+        font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem);
+      }
+      h3 {
+        font-size: 1.1875rem;
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0 0 1rem;
+        text-wrap: pretty;
+      }
+      ul,
+      ol {
+        margin: 0 0 1rem;
+        padding-left: 1.35rem;
+      }
+      li {
+        margin: 0.45rem 0;
+        padding-left: 0.2rem;
+      }
+      ol > li::marker {
+        font: 400 0.8125rem var(--font-mono);
+        color: var(--muted-foreground);
+      }
+      ul > li::marker {
+        color: var(--muted-foreground);
+      }
+      strong {
+        font-weight: 600;
+      }
+      code {
+        font: 400 0.875em var(--font-mono);
+        background: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 0.06em 0.36em;
+        overflow-wrap: anywhere;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      .skip {
+        position: absolute;
+        left: var(--gutter);
+        top: 0.75rem;
+        z-index: 10;
+        padding: 0.65rem 1rem;
+        border-radius: var(--radius-md);
+        background: var(--primary);
+        color: var(--primary-foreground);
+        font-weight: 600;
+        text-decoration: none;
+        transform: translateY(-200%);
+      }
+      .skip:focus {
+        transform: none;
+      }
+      .rail {
+        max-width: var(--rail);
+        margin: 0 auto;
+        padding: 0 var(--gutter);
+      }
+      .kicker {
+        margin: 0 0 0.85rem;
+        font: 500 0.8125rem/1.4 var(--font-sans);
+        color: var(--muted-foreground);
+      }
+      .lede {
+        font-size: 1.0625rem;
+        color: var(--muted-foreground);
+        max-width: 62ch;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 2.75rem;
+        padding: 0 1.25rem;
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        font: 600 0.9375rem/1 var(--font-sans);
+        text-decoration: none;
+        white-space: nowrap;
+        transition:
+          background-color 140ms var(--ease),
+          border-color 140ms var(--ease),
+          transform 140ms var(--ease);
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+      .btn:active {
+        transform: none;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+        box-shadow: inset 0 1px 0 var(--highlight);
+      }
+      .btn-primary:hover {
+        background: color-mix(in oklch, var(--primary) 88%, var(--background));
+      }
+      .btn-outline {
+        border-color: var(--input);
+        color: var(--foreground);
+      }
+      .btn-outline:hover {
+        background: var(--secondary);
+      }
+
+      /* Header */
+      .site-header {
+        border-bottom: 1px solid var(--border);
+      }
+      .site-header .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 4rem;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-height: 2.75rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+      }
+      /* The mark (BRAND_MARK, from scripts/mark.json): monochrome, its accent in the selection colour. */
+      .mark {
+        flex: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        overflow: visible;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .nav-links li {
+        margin: 0;
+        padding: 0;
+      }
+      .nav-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+        padding: 0 0.75rem;
+        border-radius: var(--radius-md);
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        text-decoration: none;
+        transition:
+          color 140ms var(--ease),
+          background-color 140ms var(--ease);
+      }
+      .nav-links a:hover {
+        color: var(--foreground);
+        background: var(--secondary);
+      }
+      .menu {
+        display: none;
+        position: relative;
+      }
+      .menu summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-height: 2.75rem;
+        padding: 0 0.9rem;
+        border: 1px solid var(--input);
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        font-size: 0.9375rem;
+        cursor: pointer;
+        list-style: none;
+      }
+      .menu summary::-webkit-details-marker {
+        display: none;
+      }
+      .menu summary::before {
+        content: "";
+        width: 14px;
+        height: 9px;
+        border-block: 1.5px solid currentColor;
+        background: linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat;
+      }
+      .menu[open] summary {
+        background: var(--secondary);
+      }
+      .menu .nav-links {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 0.5rem);
+        z-index: 5;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 13rem;
+        padding: 0.375rem;
+        background: var(--popover);
+        color: var(--popover-foreground);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-raised);
+      }
+      .menu .nav-links a {
+        width: 100%;
+        min-height: 2.75rem;
+        color: var(--popover-foreground);
+      }
+      @media (max-width: 760px) {
+        .site-header nav.desktop {
+          display: none;
+        }
+        .menu {
+          display: block;
+        }
+      }
+
+      /* Hero */
+      .hero {
+        display: grid;
+        align-content: center;
+        min-height: min(calc(86svh - 4rem), 52rem);
+        padding-block: clamp(3.5rem, 2rem + 6vw, 8rem);
+      }
+      .hero-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: center;
+        gap: clamp(2.5rem, 5vw, 5rem);
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 0 1.5rem;
+        padding: 0.3rem 0.7rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--card);
+        font: 500 0.8125rem/1.3 var(--font-sans);
+        color: var(--muted-foreground);
+      }
+      .hero h1 {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: clamp(3.25rem, 2rem + 3.7vw, 5.25rem);
+        line-height: 0.98;
+        letter-spacing: -0.022em;
+        margin-bottom: 1.5rem;
+      }
+      .hero .lede {
+        font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+        max-width: 40ch;
+        margin-bottom: 2rem;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0;
+        margin: 0;
+        font: 400 0.8125rem var(--font-mono);
+        color: var(--muted-foreground);
+      }
+      .meta span + span::before {
+        content: "/";
+        margin: 0 0.75rem;
+        opacity: 0.5;
+      }
+
+      /* Hero object: a frame being laid out on the canvas, one layer selected. */
+      .canvas {
+        position: relative;
+        margin: 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-2xl);
+        background:
+          radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 1.5px) 0 0 / 18px 18px,
+          linear-gradient(180deg, var(--sheen), transparent 35%),
+          var(--card);
+        box-shadow:
+          inset 0 1px 0 var(--highlight),
+          var(--shadow-raised);
+        overflow: hidden;
+      }
+      .canvas svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .f-frame {
+        fill: var(--background);
+        stroke: var(--border);
+      }
+      .f-strong {
+        fill: var(--foreground);
+        opacity: 0.85;
+      }
+      .f-surface {
+        fill: var(--secondary);
+      }
+      .f-faint {
+        fill: var(--muted-foreground);
+        opacity: 0.38;
+      }
+      .f-select {
+        fill: none;
+        stroke: var(--ring);
+        stroke-width: 1.5;
+      }
+      .f-handle {
+        fill: var(--background);
+        stroke: var(--ring);
+        stroke-width: 1.5;
+      }
+      .f-cursor {
+        fill: var(--foreground);
+        stroke: var(--background);
+        stroke-width: 1.5;
+        stroke-linejoin: round;
+      }
+
+      /* Sections */
+      .section {
+        padding-block: clamp(4.5rem, 3rem + 5vw, 8rem);
+      }
+      .section > .rail > .head {
+        margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+      }
+      .section .head .lede {
+        margin: 1rem 0 0;
+      }
+      .rule {
+        border-top: 1px solid var(--border);
+      }
+      .dense {
+        padding-block: clamp(4rem, 3rem + 3vw, 6rem);
+      }
+
+      /* Cards */
+      .card {
+        min-width: 0;
+        padding: clamp(1.25rem, 0.9rem + 1.4vw, 2.25rem);
+        background: linear-gradient(180deg, var(--sheen), transparent 40%), var(--card);
+        color: var(--card-foreground);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+      }
+      .card > :last-child,
+      .card > div > :last-child {
+        margin-bottom: 0;
+      }
+      .card h3 {
+        margin-bottom: 0.65rem;
+      }
+      .card .muted {
+        color: var(--muted-foreground);
+      }
+      .label {
+        margin: 0 0 0.75rem;
+        font: 500 0.8125rem var(--font-sans);
+        color: var(--muted-foreground);
+      }
+
+      /* Install */
+      .install-stack {
+        display: grid;
+        gap: 1.25rem;
+      }
+      .people {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0 clamp(1.5rem, 1rem + 3vw, 3.5rem);
+        padding: clamp(1.25rem, 0.75rem + 2.4vw, 3rem);
+      }
+      .people .run {
+        grid-column: 1 / -1;
+      }
+      .people .run .codebox {
+        margin-bottom: 1.75rem;
+      }
+      .people .then {
+        padding-left: clamp(1.5rem, 1rem + 2vw, 3rem);
+        border-left: 1px solid var(--border);
+      }
+      .people .then ol > li {
+        margin-bottom: 0.85rem;
+      }
+      .agents {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr);
+        gap: clamp(1.5rem, 1rem + 3vw, 3.5rem);
+      }
+      .agents-body {
+        max-width: 72ch;
+      }
+
+      /* Code boxes (markup from codeBox() in build-site.mjs) */
+      .codebox {
+        margin: 0 0 1.25rem;
+        background: var(--code);
+        color: var(--code-foreground);
+        border: 1px solid var(--code-border);
+        border-radius: var(--radius-lg);
+        box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.04);
+        overflow: hidden;
+      }
+      .codebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.375rem 0.375rem 0.375rem 1rem;
+        border-bottom: 1px solid oklch(1 0 0 / 0.08);
+        font: 500 0.75rem var(--font-sans);
+        color: var(--code-muted);
+      }
+      .codebox pre {
+        margin: 0;
+        padding: 0.9rem 1rem 1rem;
+        font: 400 0.8125rem/1.7 var(--font-mono);
+        /* Keep commands on one line (scroll if needed) so a URL is never broken across lines. */
+        white-space: pre;
+        overflow-x: auto;
+        scrollbar-color: oklch(1 0 0 / 0.2) transparent;
+      }
+      .codebox pre:focus-visible {
+        outline-offset: -2px;
+      }
+      .codebox pre code {
+        font: inherit;
+        background: none;
+        border: 0;
+        padding: 0;
+        color: inherit;
+      }
+      .copy {
+        position: relative;
+        flex: none;
+        min-width: 4.75rem;
+        min-height: 2rem;
+        padding: 0 0.85rem;
+        font: 600 0.8125rem var(--font-sans);
+        color: var(--code-foreground);
+        background: oklch(1 0 0 / 0.06);
+        border: 1px solid oklch(1 0 0 / 0.14);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition:
+          background-color 140ms var(--ease),
+          border-color 140ms var(--ease),
+          color 140ms var(--ease);
+      }
+      /* A 44px tall target around the compact button. */
+      .copy::after {
+        content: "";
+        position: absolute;
+        inset: -6px -4px;
+      }
+      .copy:hover {
+        background: oklch(1 0 0 / 0.11);
+        border-color: oklch(1 0 0 / 0.24);
+      }
+      .copy.done {
+        background: var(--success);
+        border-color: var(--success);
+        color: var(--success-foreground);
+      }
+
+      /* Why use it: one large card, then varied spans */
+      .bento {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1.25rem;
+      }
+      .bento .card {
+        display: flex;
+        flex-direction: column;
+      }
+      .bento .card p {
+        color: var(--muted-foreground);
+      }
+      .b-a {
+        grid-column: span 7;
+        grid-row: span 2;
+      }
+      .b-a h3 {
+        font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+        max-width: 18ch;
+      }
+      .b-b,
+      .b-c,
+      .b-d {
+        grid-column: span 5;
+      }
+      .b-e {
+        grid-column: span 7;
+      }
+      .stat {
+        margin: auto 0 0;
+        padding-top: 1.25rem;
+        font: 400 0.8125rem var(--font-mono);
+        color: var(--muted-foreground);
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0.5rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .chips li {
+        margin: 0;
+        padding: 0.3rem 0.6rem;
+        font: 400 0.8125rem var(--font-mono);
+        background: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+      }
+      .b-a .chips {
+        margin-top: auto;
+        padding-top: 1.25rem;
+      }
+      .facts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin: auto 0 0;
+        padding: 1.25rem 0 0;
+        list-style: none;
+        border-top: 1px solid var(--border);
+      }
+      .facts li {
+        margin: 0;
+        padding: 0;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+      .facts code {
+        display: block;
+        width: fit-content;
+        margin-bottom: 0.3rem;
+        color: var(--foreground);
+      }
+
+      /* What you can do */
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: clamp(2rem, 1rem + 4vw, 5rem);
+        align-items: start;
+      }
+      .features-copy h2 {
+        margin-bottom: 2rem;
+      }
+      .features-body > p {
+        max-width: 60ch;
+        padding-left: 1.25rem;
+        border-left: 1px solid var(--border);
+      }
+      .features-body > p strong:first-child {
+        font-size: 1.0625rem;
+      }
+      .notes {
+        color: var(--muted-foreground);
+        font-size: 0.9375rem;
+      }
+
+      /* Reference sections: a heading column beside the content */
+      .docs {
+        display: grid;
+        grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+        gap: clamp(1.5rem, 1rem + 4vw, 5rem);
+        align-items: start;
+      }
+      .docs .head {
+        position: sticky;
+        top: 1.5rem;
+      }
+      .docs .head .lede {
+        margin: 1rem 0 0;
+        font-size: 1rem;
+      }
+      .docs-body {
+        max-width: 68ch;
+      }
+      .docs-body > ol > li,
+      .docs-body > ul > li {
+        margin-bottom: 0.85rem;
+      }
+      .rows > ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .rows li {
+        margin: 0;
+        padding: 1.1rem 0;
+        border-top: 1px solid var(--border);
+      }
+      .rows li:last-child {
+        border-bottom: 1px solid var(--border);
+      }
+
+      /* Tools */
+      .tool-group + .tool-group {
+        margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+      }
+      .tool-group h3 {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .count {
+        font: 400 0.8125rem var(--font-mono);
+        color: var(--muted-foreground);
+      }
+      .table-wrap {
+        overflow-x: auto;
+        margin: 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9375rem;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      th {
+        background: var(--muted);
+        font: 500 0.8125rem var(--font-sans);
+        color: var(--muted-foreground);
+      }
+      td {
+        color: var(--muted-foreground);
+      }
+      td:first-child {
+        width: 1%;
+        white-space: nowrap;
+        color: var(--foreground);
+      }
+      td:first-child code {
+        background: none;
+        border: 0;
+        padding: 0;
+        font-size: 0.8125rem;
+        white-space: nowrap;
+      }
+      td code {
+        color: var(--foreground);
+      }
+
+      /* Closing call to action */
+      .cta {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        align-items: end;
+        gap: 0 clamp(1.5rem, 1rem + 4vw, 5rem);
+        padding: clamp(1.5rem, 1rem + 3vw, 4rem);
+        border-radius: var(--radius-2xl);
+        box-shadow: inset 0 1px 0 var(--highlight);
+      }
+      .cta h2 {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem);
+        line-height: 1.02;
+        letter-spacing: -0.02em;
+        margin-bottom: 1rem;
+      }
+      .cta .codebox {
+        grid-column: 1 / -1;
+        margin: clamp(1.5rem, 1rem + 1.5vw, 2.5rem) 0 0;
+      }
+      .cta h2 + p,
+      .cta-note {
+        margin: 0;
+      }
+
+      footer {
+        padding-block: 3rem;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+      footer .rail {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem 2rem;
+      }
+      footer p {
+        margin: 0;
+      }
+      footer .links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+        margin-left: 1.25rem;
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+      }
+
+      /* README extras: subheadings, quotes and emphasis inside rendered sections */
+      .docs-body h3,
+      .docs-body h4,
+      .features-body h3 {
+        margin: 2rem 0 0.75rem;
+      }
+      .docs-body > h3:first-child,
+      .docs-body > h4:first-child {
+        margin-top: 0;
+      }
+      h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+      }
+      blockquote {
+        margin: 0 0 1rem;
+        padding: 0.85rem 1rem;
+        border-left: 2px solid var(--input);
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        background: var(--muted);
+        color: var(--muted-foreground);
+      }
+      blockquote > :last-child {
+        margin-bottom: 0;
+      }
+      .docs-body .codebox {
+        margin-block: 0.5rem 1.25rem;
+      }
+
+      /* Entrance: the hero copy rises in, then the canvas draws itself. */
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+      }
+      @keyframes appear {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+      }
+      @keyframes glide {
+        from {
+          opacity: 0;
+          transform: translate(14px, 12px);
+        }
+      }
+      .hero-copy > * {
+        animation: rise 520ms var(--ease) both;
+      }
+      .hero-copy > :nth-child(2) {
+        animation-delay: 60ms;
+      }
+      .hero-copy > :nth-child(3) {
+        animation-delay: 120ms;
+      }
+      .hero-copy > :nth-child(4) {
+        animation-delay: 180ms;
+      }
+      .hero-copy > :nth-child(5) {
+        animation-delay: 240ms;
+      }
+      .canvas {
+        animation: rise 520ms var(--ease) 120ms both;
+      }
+      .draw > * {
+        animation: appear 420ms var(--ease) both;
+        transform-box: fill-box;
+      }
+      .draw > :nth-child(1) {
+        animation-delay: 300ms;
+      }
+      .draw > :nth-child(2) {
+        animation-delay: 370ms;
+      }
+      .draw > :nth-child(3) {
+        animation-delay: 440ms;
+      }
+      .draw > :nth-child(4) {
+        animation-delay: 510ms;
+      }
+      .draw > :nth-child(5) {
+        animation-delay: 580ms;
+      }
+      .draw > :nth-child(6) {
+        animation-delay: 650ms;
+      }
+      .draw > :nth-child(7) {
+        animation-delay: 720ms;
+      }
+      .draw > :nth-child(8) {
+        animation: glide 520ms var(--ease) 820ms both;
+      }
+
+      /* Layout breakpoints */
+      @media (max-width: 1080px) {
+        .agents {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 0.5rem;
+        }
+        .facts {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      @media (max-width: 900px) {
+        .hero-grid,
+        .people,
+        .split,
+        .docs,
+        .cta {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .hero {
+          min-height: 0;
+        }
+        .canvas {
+          max-width: 34rem;
+        }
+        .people .then {
+          padding: 1.5rem 0 0;
+          border-left: 0;
+          border-top: 1px solid var(--border);
+        }
+        .bento > .card {
+          grid-column: 1 / -1;
+          grid-row: auto;
+        }
+        .docs .head {
+          position: static;
+        }
+        .cta-note {
+          margin-top: 0.75rem;
+        }
+      }
+      /* Small screens: each tool row becomes a record, its name above its description. */
+      @media (max-width: 640px) {
+        .table-wrap table,
+        .table-wrap tbody,
+        .table-wrap tr,
+        .table-wrap td {
+          display: block;
+          width: auto;
+        }
+        .table-wrap thead {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+        }
+        .table-wrap tr {
+          padding: 0.9rem 1rem;
+          border-bottom: 1px solid var(--border);
+        }
+        .table-wrap tr:last-child {
+          border-bottom: 0;
+        }
+        .table-wrap td {
+          padding: 0;
+          border: 0;
+        }
+        .table-wrap td:first-child {
+          margin-bottom: 0.3rem;
+        }
+        td:first-child code {
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+      }
+      @media (max-width: 560px) {
+        footer .links a {
+          margin: 0 1.25rem 0 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          animation-delay: 0ms !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header" id="top">
+      <div class="rail bar">
+        <a class="brand" href="#top"><svg class="mark" viewBox="4 4 24 24" aria-hidden="true" focusable="false"><rect x="6.5" y="5.5" width="19" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="7.5" y1="17.5" x2="16" y2="27" stroke-linecap="round" stroke="currentColor" stroke-width="2.2"/><line x1="24.5" y1="17.5" x2="16" y2="27" stroke-linecap="round" stroke="currentColor" stroke-width="2.2"/><circle cx="16" cy="13" r="3" fill="var(--background)" stroke="var(--ring)" stroke-width="2"/></svg>Snyk Projects and Issues (unofficial)</a>
+        <!-- The two nav lists must match each other and the sections below (keep 3 to 5 links). -->
+        <nav class="desktop" aria-label="Sections">
+          <ul class="nav-links">
+            <li><a href="#install">Install</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#reference">Tools</a></li>
+            <li><a href="#security">Security</a></li>
+            <li><a href="#troubleshooting">Help</a></li>
+          </ul>
+        </nav>
+        <details class="menu">
+          <summary>Menu</summary>
+          <nav aria-label="Sections">
+            <ul class="nav-links">
+              <li><a href="#install">Install</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#reference">Tools</a></li>
+              <li><a href="#security">Security</a></li>
+              <li><a href="#troubleshooting">Help</a></li>
+            </ul>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="rail hero-grid">
+          <div class="hero-copy">
+            <p class="badge">Claude Desktop extension for macOS</p>
+            <h1 id="hero-title">Ask Claude about your Snyk account.</h1>
+            <p class="lede">It lists your repos and projects with their issue counts, explains issues, plans the fixes that clear the most of them and checks whether a package is vulnerable, using your own Snyk token. It is read-only unless you turn on write tools. One command installs it, and the same command updates it.</p>
+            <div class="actions">
+              <a class="btn btn-primary" href="#install">Install</a>
+              <a class="btn btn-outline" href="#install-agents">Guide for AI agents</a>
+            </div>
+            <p class="meta">
+              <span>Version 0.2.0</span><span>macOS · Claude Desktop</span><span>Read-only by default</span>
+            </p>
+          </div>
+          <!--
+            Hero object: a window with a list of projects on the left and the open issue on the right, with one
+            project selected. Drawn only with the f-* classes; 8 children of .draw, the cursor last.
+          -->
+          <figure
+            class="canvas"
+            role="img"
+            aria-label="Illustration: a window with a list of projects and an open issue with a detail card, one project selected"
+          >
+            <svg
+              viewBox="0 0 520 400"
+              width="520"
+              height="400"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <g class="draw">
+                <rect class="f-frame" x="70.5" y="54.5" width="379" height="290" rx="10" />
+                <g>
+                  <rect class="f-faint" x="70" y="34" width="62" height="8" rx="4" />
+                  <rect class="f-strong" x="92" y="74" width="44" height="10" rx="3" />
+                  <rect class="f-faint" x="318" y="75" width="110" height="8" rx="4" />
+                </g>
+                <g>
+                  <rect class="f-surface" x="92" y="100" width="140" height="52" rx="8" />
+                  <rect class="f-strong" x="104" y="110" width="64" height="10" rx="3" />
+                  <rect class="f-faint" x="104" y="128" width="112" height="7" rx="3.5" />
+                  <rect class="f-surface" x="92" y="160" width="140" height="52" rx="8" />
+                  <rect class="f-strong" x="104" y="170" width="78" height="10" rx="3" />
+                  <rect class="f-faint" x="104" y="188" width="96" height="7" rx="3.5" />
+                  <rect class="f-surface" x="92" y="220" width="140" height="52" rx="8" />
+                  <rect class="f-strong" x="104" y="230" width="56" height="10" rx="3" />
+                  <rect class="f-faint" x="104" y="248" width="108" height="7" rx="3.5" />
+                  <rect class="f-surface" x="92" y="280" width="140" height="44" rx="8" />
+                  <rect class="f-strong" x="104" y="290" width="70" height="10" rx="3" />
+                </g>
+                <g>
+                  <rect class="f-strong" x="252" y="102" width="160" height="14" rx="3" />
+                  <rect class="f-strong" x="252" y="122" width="104" height="14" rx="3" />
+                  <rect class="f-faint" x="252" y="146" width="122" height="7" rx="3.5" />
+                </g>
+                <g>
+                  <rect class="f-faint" x="252" y="170" width="176" height="7" rx="3.5" />
+                  <rect class="f-faint" x="252" y="183" width="158" height="7" rx="3.5" />
+                  <rect class="f-faint" x="252" y="196" width="168" height="7" rx="3.5" />
+                  <rect class="f-faint" x="252" y="209" width="120" height="7" rx="3.5" />
+                </g>
+                <g>
+                  <rect class="f-surface" x="252" y="232" width="176" height="92" rx="8" />
+                  <rect class="f-strong" x="266" y="246" width="96" height="10" rx="3" />
+                  <rect class="f-faint" x="266" y="264" width="130" height="7" rx="3.5" />
+                  <rect class="f-faint" x="266" y="277" width="104" height="7" rx="3.5" />
+                  <rect class="f-strong" x="266" y="294" width="64" height="18" rx="5" />
+                </g>
+                <g>
+                  <rect class="f-select" x="91" y="159" width="142" height="54" />
+                  <rect class="f-handle" x="87.5" y="155.5" width="7" height="7" />
+                  <rect class="f-handle" x="229.5" y="155.5" width="7" height="7" />
+                  <rect class="f-handle" x="87.5" y="209.5" width="7" height="7" />
+                  <rect class="f-handle" x="229.5" y="209.5" width="7" height="7" />
+                </g>
+                <path
+                  class="f-cursor"
+                  d="M240 218 l0 22 l5.5 -5 l4 9 l4 -1.8 l-4 -8.8 l7.5 -0.4 z"
+                />
+              </g>
+            </svg>
+          </figure>
+        </div>
+      </section>
+
+      <section id="install" class="section rule" aria-labelledby="install-title">
+        <div class="rail">
+          <div class="head">
+            <p class="kicker">Install</p>
+            <h2 id="install-title">One command, then two clicks in Claude Desktop</h2>
+            <p class="lede">
+              The installer downloads the latest extension, checks its SHA-256 before anything changes, opens
+              Claude Desktop's install dialog, and waits until the extension is switched on and running. Click
+              Install there. The installer also asks for your Snyk token, which stays in your Keychain.
+            </p>
+          </div>
+          <div class="install-stack">
+            <article class="card people" id="install-people" aria-labelledby="people-title">
+              <div class="run">
+                <h3 id="people-title">For people</h3>
+                <p class="muted">Open Terminal and run:</p>
+                <div class="codebox"><div class="codebar"><span>Terminal</span><button class="copy" type="button" aria-label="Copy install command">Copy</button></div><pre tabindex="0"><code>curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | bash</code></pre></div>
+              </div>
+              <p class="muted">
+                You need a Mac with Claude Desktop 2.7032.0 or later and a Snyk account. You don't need
+                Python, Node, git or a configuration file. After that it keeps itself up to date: Claude offers
+                each new version on an update card in the chat, and it is installed only when you click Update now
+                and then Install. Your settings and your Snyk token are kept.
+              </p>
+                            <div class="then">
+                <p class="label">Then</p>
+                <ol><li>When the installer asks, create a token in Snyk and paste it: open <a href="https://app.snyk.io/account" target="_blank" rel="noopener noreferrer">https://app.snyk.io/account</a>, sign in with your company single sign-on (Okta), go to Personal access tokens, click Generate new token, pick an expiry (90 days at most) and copy it. You can skip this and add the token later.</li><li>Click Install in the dialog Claude Desktop opens. You can leave its settings blank.</li><li>If Claude Desktop shows the extension switched off, switch it on: Settings &gt; Extensions &gt; Snyk Projects and Issues (unofficial). Click once and wait a few seconds; the installer says when it is running.</li><li>Start a new chat (chats opened before the extension was on don&#39;t see its tools) and ask something, for example &quot;Which of my repos have the most critical issues?&quot;.</li></ol>
+              </div>
+                          </article>
+
+            <article class="card agents" id="install-agents" aria-labelledby="agents-title">
+              <div>
+                <h3 id="agents-title">For AI agents</h3>
+                <p class="muted">
+                  Use these steps if you are an AI agent installing this for a user.
+                </p>
+                <p class="muted">A plain-text version is in <a href="llms.txt">llms.txt</a>.</p>
+              </div>
+              <div class="agents-body">
+                <ol>
+                  <li>
+                    <strong>Check the machine.</strong> Continue only if <code>uname -s</code> prints
+                    <code>Darwin</code> and <code>/Applications/Claude.app</code> exists. Otherwise tell the user
+                    it needs a Mac with Claude Desktop 2.7032.0 or later.
+                  </li>
+                  <li>
+                    <strong>Run the installer</strong> with this one command. It downloads the extension, checks
+                    its SHA-256 (nothing changes before the check passes) and opens Claude Desktop's install dialog.
+                    With no terminal it never prompts, and <code>--no-wait</code> makes it exit once the dialog is
+                    open. It exits non-zero, with the reason on stderr, if anything fails.
+                  </li>
+                </ol>
+                <div class="codebox"><div class="codebar"><span>Terminal</span><button class="copy" type="button" aria-label="Copy install command for agents">Copy</button></div><pre tabindex="0"><code>curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | SNYK_INSTALL_TTY=/dev/null bash -s -- --no-wait</code></pre></div>
+                <ol start="3">
+                  <li>
+                    <strong>Hand over to the user.</strong> Ask them to click Install in the dialog Claude Desktop
+                    opened (they can leave its settings blank), and to switch the extension on if Claude Desktop
+                    shows it off (Settings &gt; Extensions). You can't do these for them.
+                  </li>
+                  <li>
+                    <strong>Verify.</strong> Run the installer again with <code>--status</code> (after
+                    <code>bash -s --</code>). It should show <code>Ready: yes</code>; otherwise its
+                    <code>Next:</code> line says the one thing left to do. Then ask the user to start a new chat
+                    (chats opened while the extension was off don't see its tools) and ask about their Snyk projects. If no Snyk token is saved yet, Claude shows a card where they add one; never ask them to paste it to you.
+                  </li>
+                  <li>
+                    <strong>Updates look after themselves.</strong> Once a day the extension checks for a new version
+                    and Claude shows the user an update card. Only the user can click Update now and then Install;
+                    to update straight away, run the install command again.
+                  </li>
+                </ol>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="why" class="section rule" aria-labelledby="why-title">
+        <div class="rail">
+          <div class="head">
+            <p class="kicker">Why use it</p>
+            <h2 id="why-title">Answers from your own Snyk account, in plain English</h2>
+          </div>
+          <div class="bento">
+            <article class="card b-a">
+              <h3>Ask about your repos, projects and issues in plain English.</h3>
+              <p>
+                Claude picks the right tool and gets the answer on the server. "What are the main critical risks in
+                PAM?" comes back grouped by package and CVE, with how many projects each affects and how many are
+                fixable, in one call instead of a pile of rows. Every issue shows its project name and file, and
+                exports land in a folder your other tools can reach, with a summary.
+              </p>
+              <ul class="chips" aria-label="Available tools"><li>whoami</li><li>list_orgs</li><li>list_repos</li><li>list_projects</li><li>get_project</li><li>list_issues</li><li>get_issue</li><li>risk_summary</li><li>fix_plan</li><li>check_packages</li><li>where_used</li><li>export_issues</li><li>export_sbom</li><li>search_audit_log</li><li>list_collections</li><li>get_collection</li><li>list_collection_projects</li><li>scan_local_repo</li><li>set_token</li><li>save_token</li><li>token_status</li><li>sign_out</li><li>check_for_updates</li><li>install_update</li><li>snooze_update</li></ul>
+            </article>
+            <article class="card b-b">
+              <h3>Read-only until you turn on write tools</h3>
+              <p>
+                With the setting off, Claude can't change anything in Snyk. Turn it on and Claude can import repos,
+                ignore issues with a reason and an expiry, tag projects and change their settings, showing you what
+                it will do and waiting for your yes. Nothing in Snyk is ever deleted.
+              </p>
+            </article>
+            <article class="card b-c">
+              <h3>Your own token, kept in your Keychain</h3>
+              <p>
+                You create a personal access token in Snyk after signing in with your company single sign-on, so Okta
+                and MFA apply as usual. It is kept in your macOS Keychain, and Claude never sees it in the chat.
+              </p>
+            </article>
+            <article class="card b-d">
+              <h3>Scoped to the part you care about</h3>
+              <p>
+                Narrow any overview, list, export or fix plan to a collection, a repo, or a folder of a monorepo,
+                so "PAM" or <code>media/unified-activation</code> gets its own answer instead of an
+                organisation-wide number. Every tool takes an <code>org</code> if your token sees more than one.
+              </p>
+            </article>
+            <article class="card b-e">
+              <h3>Checked before it installs, and offers its own updates</h3>
+              <p>
+                The installer verifies the download before anything changes, then Claude Desktop's own dialog
+                shows the tools and settings before you click Install. New versions are checked the same way and
+                offered on a card in the chat; nothing installs until you agree.
+              </p>
+              <ul class="facts">
+                <li><code>SHA-256</code>Checked before anything changes</li>
+                <li><code>Update now</code>New versions offered in the chat, installed only if you agree</li>
+                <li><code>Keychain</code>Where your Snyk token is kept, never in a file</li>
+                <li><code>0.0.0-use.local</code>Workspace packages are flagged, so false "malicious package" alarms are called out</li>
+                <li><code>fix_plan</code>One version to move to, not every fixed build; Dockerfiles get rebuild advice</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="section rule" aria-labelledby="features-title">
+        <div class="rail split">
+          <div class="features-copy">
+            <p class="kicker">Features</p>
+            <h2 id="features-title">What it can and can't do</h2>
+            <div class="features-body"><ul><li>It reads what your token can read: the organisation you choose in the settings (by default your account&#39;s default one), and nothing else. What you can change depends on your Snyk role, not on this extension.</li><li>Lists are compact because accounts can hold thousands of projects and issues. Claude can group them on the server (<code>group_by</code>), page through them, or write everything to a file in <code>~/Downloads/snyk-exports</code> (with a summary) when it needs every row.</li><li>Snyk can&#39;t filter issues by collection, folder or repo itself, so for those scopes this tool reads the organisation&#39;s matching issues and keeps the right ones (up to 20,000): narrowing by severity keeps it fast.</li><li>It reads from Snyk&#39;s API; it does not scan anything itself, except through the local Snyk CLI if you have it installed.</li><li>Snyk matches package versions exactly, so &quot;where is this used&quot; needs a name and a version.</li><li>It can&#39;t open fix pull requests or retest a project on demand: Snyk&#39;s public API has no such calls (Snyk does both itself, from your project settings).</li><li>It never deletes anything in Snyk. Write tools can add, ignore, change and deactivate, and most can be undone.</li><li>Group-level views and webhooks need rights your token may not have; Claude says so instead of guessing.</li></ul></div>
+          </div>
+          <div>
+            <div class="notes">
+              <h3>Sign in and sign out</h3>
+              <p>There is no separate sign-in: the extension uses your own Snyk <strong>personal access token</strong>, kept in your macOS Keychain and nowhere else. The installer asks for it the first time (hidden input).</p>
+<p>If the token is missing, expired (Snyk tokens last at most 90 days) or rejected, Claude shows a card. It explains how to create a new one: open Snyk, sign in with your company single sign-on (Okta), go to Account settings &gt; Personal access tokens, generate a token with an expiry of up to 90 days and copy it. Paste it into the card&#39;s hidden field and click Save. The extension checks it with Snyk, saves it to your Keychain and Claude carries on with your question. The token never appears in the chat. Claude also warns you once a day when your token has 14 days or fewer left.</p>
+<p>You can add or replace the token without Claude: run <code>curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | bash -s -- --set-token</code> in Terminal. To sign out, ask Claude to &quot;Sign out of Snyk&quot; (it deletes the token from your Keychain).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="examples" class="section dense rule" aria-labelledby="examples-title">
+        <div class="rail">
+          <div class="head">
+            <p class="kicker">Examples</p>
+            <h2 id="examples-title">What you can ask</h2>
+          </div>
+          <div class="tool-group">
+            <p>Ask in plain English. Claude picks the tools.</p>
+<ul><li><strong>Scope it to your part of the estate:</strong> &quot;How many critical issues are in the PAM collection?&quot;, &quot;What&#39;s the risk in <code>media/unified-activation</code>?&quot; Collections, repos and folders (<code>path_prefix</code>) narrow every overview, list, export and fix plan, so a monorepo isn&#39;t one big number.</li><li><strong>Get the answer, not the rows:</strong> &quot;What are the main critical risks in PAM?&quot; comes back grouped by package and CVE (counts, projects affected, how many are fixable), biggest first, in one call. Group by package, CVE, title, repo, project, folder, month, severity or reachability.</li><li><strong>See where things are:</strong> every issue row carries the project name and manifest file, so you never decode a list of UUIDs.</li><li><strong>Know what to fix first:</strong> &quot;Fix plan for PAM&quot; gives the few upgrades or pins that clear the most issues, with the single version to move to (not thirteen builds of each package). Dockerfile projects get their base image and rebuild advice instead of a list of apt packages.</li><li><strong>Spot false alarms:</strong> workspace packages (<code>0.0.0-use.local</code>) are flagged, so a &quot;malicious package&quot; finding that is really a name collision with public npm is called out as a dependency-confusion risk, not malware. Reachability is a column and a filter.</li><li><strong>Honest about fixes:</strong> &quot;fixable&quot; is split into upgradable (a manifest bump), pinnable (an override or resolution) and a plain fix version, so a monorepo&#39;s overrides-fixable issues aren&#39;t hidden behind a single flag.</li><li><strong>Export for analysis:</strong> &quot;Write every critical issue in PAM to a file&quot; lands in <code>~/Downloads/snyk-exports</code>, where your other tools can reach it, with the full path and a summary (by severity, top packages, top projects) so a follow-up read is often unnecessary.</li><li><strong>Triage:</strong> &quot;Explain SNYK-JS-LODASH-1018905 and how it gets into the project&quot;, &quot;What&#39;s new since 1 November?&quot;</li><li><strong>Check packages:</strong> &quot;Is lodash 4.17.20 vulnerable?&quot;, &quot;Where do we use flatted 3.2.7?&quot;, &quot;Which projects use a GPL licence?&quot;</li><li><strong>More than one organisation:</strong> every tool takes an <code>org</code>, and <code>list_orgs</code> shows what your token can see.</li><li><strong>Scan a folder:</strong> &quot;Run Snyk on ~/code/my-app&quot; (open source and infrastructure files; Snyk Code only if you ask for it).</li><li><strong>With write tools on:</strong> &quot;Create a collection called Web from every project under <code>media/unified-activation</code>&quot;, &quot;Rename PAM to PAM-core&quot;, &quot;Import acme/new-service&quot;, &quot;Ignore this issue for 30 days because the code path is unreachable&quot;, &quot;Tag these projects team:web&quot;.</li></ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="write-tools" class="section rule" aria-labelledby="write-tools-title">
+        <div class="rail docs">
+          <div class="head">
+            <p class="kicker">Optional</p>
+            <h2 id="write-tools-title">Write tools</h2>
+            <p class="lede">Off by default. Turn them on in the extension's settings, then choose which ones need your approval.</p>
+          </div>
+          <div class="docs-body"><p>Write tools are <strong>off by default</strong>. With the setting off they are not offered to Claude at all. Turn on <strong>Enable write tools</strong> in Settings &gt; Extensions &gt; Snyk Projects and Issues (unofficial) &gt; Configure, and they appear under Write/delete tools in the extension&#39;s tool permissions, where you can set each one to always allow, ask first or block.</p>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>What it does</th></tr></thead><tbody><tr><td><code>import_repo</code></td><td>Add a repository through your GitHub or GitHub Enterprise integration; returns a job to follow</td></tr><tr><td><code>import_status</code></td><td>Where an import job stands</td></tr><tr><td><code>ignore_issue</code></td><td>Ignore one issue in one project with a reason type, a reason and (best practice) an expiry</td></tr><tr><td><code>unignore_issue</code></td><td>Remove an ignore</td></tr><tr><td><code>update_project</code></td><td>Add or remove tags, set criticality, environment and lifecycle, the test frequency or the pull request checks</td></tr><tr><td><code>set_project_active</code></td><td>Activate or deactivate a project (nothing is deleted)</td></tr><tr><td><code>manage_collection</code></td><td>Create or rename a collection, or add projects to or remove projects from one, by project id or by scope (repo, folder, type, another collection) with a preview before anything bulk is applied. Collections are never deleted</td></tr></tbody></table></div>
+<p>Ignoring needs a reason (it is visible to everyone in your organisation) and Claude is told to prefer an expiry. Your Snyk role decides whether a change is allowed; Snyk&#39;s answer is shown if it isn&#39;t.</p></div>
+        </div>
+      </section>
+
+      <section id="reference" class="section dense rule" aria-labelledby="reference-title">
+        <div class="rail">
+          <div class="head">
+            <p class="kicker">Reference</p>
+            <h2 id="reference-title">Available tools</h2>
+            <p class="lede">Every tool the extension offers, and whether it changes anything.</p>
+          </div>
+          <div class="tool-group">
+            <p>Read-only tools (always available):</p>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>What it does</th></tr></thead><tbody><tr><td><code>whoami</code></td><td>Who the token belongs to, your organisation, region, token expiry (with a warning when it is close), where exports go, and whether the Snyk CLI is installed</td></tr><tr><td><code>list_orgs</code></td><td>The organisations your token can see; every tool takes an <code>org</code> to use another</td></tr><tr><td><code>list_repos</code></td><td>Repos with project counts and latest issue counts, worst first</td></tr><tr><td><code>list_projects</code></td><td>Projects with their issue counts, worst first; filter by repo, collection, folder, type, status or tag; export to a file</td></tr><tr><td><code>get_project</code></td><td>One project&#39;s details and pull request check settings</td></tr><tr><td><code>list_issues</code></td><td>Issues with project name and file on every row; scope by project, repo, collection or folder; filter by type, severity, fix, reachability, workspace package or dates; <code>group_by</code> for counts per package, CVE, repo and more; export to a file</td></tr><tr><td><code>get_issue</code></td><td>One issue in full: scores, minimum fixed version, reachability, dependency paths or the code data flow</td></tr><tr><td><code>risk_summary</code></td><td>Open issues by severity, the worst repos and projects, optional grouping, and what is new since a date; scope by repo, collection or folder</td></tr><tr><td><code>fix_plan</code></td><td>The few upgrades and pins that clear the most issues, with the single version to move to; Dockerfile projects get their base image and rebuild advice</td></tr><tr><td><code>check_packages</code></td><td>Is this package version vulnerable?</td></tr><tr><td><code>where_used</code></td><td>Projects using a package version or a licence</td></tr><tr><td><code>export_issues</code></td><td>Write every matching issue to a file in <code>~/Downloads/snyk-exports</code>, with its full path and a summary</td></tr><tr><td><code>export_sbom</code></td><td>Write a project&#39;s SBOM (CycloneDX or SPDX) to a file</td></tr><tr><td><code>search_audit_log</code></td><td>Who changed or ignored what, and when</td></tr><tr><td><code>list_collections</code></td><td>Your collections with project and issue counts; a collection can narrow <code>list_projects</code>, <code>list_issues</code>, <code>risk_summary</code>, <code>fix_plan</code> and <code>export_issues</code> by name</td></tr><tr><td><code>get_collection</code></td><td>One collection: its totals and worst projects</td></tr><tr><td><code>list_collection_projects</code></td><td>The projects in one collection, worst first</td></tr><tr><td><code>scan_local_repo</code></td><td>Run the Snyk CLI on a folder on your Mac (asks first: Snyk Code uploads source)</td></tr></tbody></table></div>
+<p>Token and update tools:</p>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>What it does</th></tr></thead><tbody><tr><td><code>set_token</code></td><td>Show the card that adds, replaces or checks your Snyk token</td></tr><tr><td><code>save_token</code></td><td>Used by that card&#39;s Save button: checks the token with Snyk and saves it to the Keychain</td></tr><tr><td><code>token_status</code></td><td>Used by that card to show where the token stands</td></tr><tr><td><code>sign_out</code></td><td>Delete the saved token from your Keychain</td></tr><tr><td><code>check_for_updates</code></td><td>Show the update card (Update now / Not now)</td></tr><tr><td><code>install_update</code></td><td>Used by the update card: download, check and open Claude Desktop&#39;s install dialog</td></tr><tr><td><code>snooze_update</code></td><td>Used by the update card: don&#39;t offer this version for a week</td></tr></tbody></table></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="requirements" class="section rule" aria-labelledby="requirements-title">
+        <div class="rail docs">
+          <div class="head">
+            <p class="kicker">Requirements</p>
+            <h2 id="requirements-title">What you need</h2>
+            <p class="lede">A Mac, Claude Desktop and a Snyk account.</p>
+          </div>
+          <div class="docs-body"><ul><li>A Mac with Claude Desktop 2.7032.0 or later. uv is downloaded by Claude Desktop if you don&#39;t have it.</li><li>A Snyk account, and a personal access token from it (the installer or Claude walks you through making one).</li><li>Optional: the Snyk CLI (<code>brew install snyk</code>) for <code>scan_local_repo</code>.</li><li>Internet access to Snyk&#39;s API (<code>api.snyk.io</code>, or your region&#39;s host).</li></ul></div>
+        </div>
+      </section>
+
+      <section id="security" class="section rule" aria-labelledby="security-title">
+        <div class="rail docs">
+          <div class="head">
+            <p class="kicker">Security</p>
+            <h2 id="security-title">Token and privacy</h2>
+            <p class="lede">How your Snyk token is kept, and what Claude can see.</p>
+          </div>
+          <div class="docs-body rows"><ul><li><strong>Your token</strong> lives only in your macOS login Keychain (service <code>snyk-mcp-pat</code>). It is never written to a file, a log, the chat or the extension itself. The installer, the CLI and the extension save it through <code>security -i</code> on standard input, so it never appears in the process list.</li><li><strong>Where it goes:</strong> only to Snyk&#39;s API hosts (<code>api.snyk.io</code> and the regional ones), and to the Snyk CLI through its environment when you run <code>scan_local_repo</code>. Any other address is refused before a request is made.</li><li><strong>The card:</strong> the paste field is hidden and the token is sent to the extension, checked with Snyk and saved; it isn&#39;t shown again or placed in the conversation.</li><li><strong>What Claude sees:</strong> everything Claude reads from Snyk (project names, issues, packages) is sent to Anthropic as part of your conversation. Snyk Code uploads source to Snyk, so <code>scan_local_repo</code> only runs that scan when you ask.</li><li><strong>Write tools</strong> are off by default, are not even listed while off, and are refused in three places if they are.</li><li><strong>Exports</strong> go to <code>~/Downloads/snyk-exports</code> unless you choose another folder in the settings: owner-only (mode 700, files 600), never overwritten unless you say, and a tool can&#39;t write outside it. They contain issue data from your organisation, so treat them like any other work file.</li><li><strong>Updates</strong> are checked once a day against the landing page, verified with SHA-256 and a manifest check, and installed only when you click Install in Claude Desktop&#39;s own dialog.</li></ul>
+<p>Report a problem with this project as described in SECURITY.md. For Snyk data handling or whether you may use this with your organisation&#39;s code, ask your security team.</p></div>
+        </div>
+      </section>
+
+      <section id="troubleshooting" class="section rule" aria-labelledby="troubleshooting-title">
+        <div class="rail docs">
+          <div class="head">
+            <p class="kicker">Help</p>
+            <h2 id="troubleshooting-title">Troubleshooting</h2>
+            <p class="lede">The messages you might see, and what to do about each.</p>
+          </div>
+          <div class="docs-body"><div class="table-wrap"><table><thead><tr><th>Message or symptom</th><th>What to do</th></tr></thead><tbody><tr><td>Claude shows a card asking for a Snyk token</td><td>None is saved, or Snyk rejected it (expired or revoked). Follow the card: open Snyk, sign in with your company single sign-on, create a token and paste it</td></tr><tr><td>&quot;That token didn&#39;t work&quot; on the card</td><td>Copy the whole token again (Snyk shows it once), check it hasn&#39;t expired, and that you made it in your own Snyk account</td></tr><tr><td>The installer says it needs a terminal for <code>--set-token</code></td><td>Run it in Terminal yourself: the token is never typed into a chat</td></tr><tr><td><code>Snyk 403</code> for one tool</td><td>Your Snyk role doesn&#39;t allow it; ask an organisation admin, or use another tool</td></tr><tr><td><code>Snyk 429</code></td><td>Snyk is throttling you; reads retry automatically, so wait a minute and ask again</td></tr><tr><td><code>where_used</code> asks for an exact version</td><td>Snyk matches package versions exactly: give <code>name@version</code></td></tr><tr><td><code>scan_local_repo</code> says the CLI isn&#39;t installed</td><td><code>brew install snyk</code>, or set its path in the extension&#39;s settings</td></tr><tr><td>The extension is listed twice in Claude Desktop</td><td>An old manual entry is still in <code>claude_desktop_config.json</code>; remove it</td></tr><tr><td>A collection or folder question is slow</td><td>Snyk can&#39;t filter issues by collection or folder, so it reads the organisation&#39;s matching issues: ask for one severity (for example critical) to keep it fast</td></tr><tr><td>Claude can&#39;t open an export</td><td>Exports are in <code>~/Downloads/snyk-exports</code> (or the folder you chose); the path returned is the real one, not a <code>/var</code> alias</td></tr><tr><td>Claude doesn&#39;t see the tools</td><td>Start a new chat after the extension is switched on</td></tr></tbody></table></div></div>
+        </div>
+      </section>
+
+      <section id="update" class="section rule" aria-labelledby="update-title">
+        <div class="rail docs">
+          <div class="head">
+            <p class="kicker">Update</p>
+            <h2 id="update-title">Update and remove</h2>
+            <p class="lede">It checks for new versions itself and asks you first. Updating keeps your settings and your Snyk token.</p>
+          </div>
+          <div class="docs-body rows"><p>It checks for new versions itself: once a day it reads the landing page, and when there is one Claude shows an update card in the chat. <strong>Update now</strong> downloads the new version, checks its SHA-256 and opens Claude Desktop&#39;s install dialog; you click Install. <strong>Not now</strong> hides that version for a week. Turn the daily check off with <strong>Check for updates</strong> in the extension&#39;s settings. Running the install command again also updates. Your settings and your Snyk token are kept.</p>
+<p>To remove it: ask Claude to &quot;Sign out of Snyk&quot; (this deletes the token from your Keychain), then uninstall it in Claude Desktop under Settings &gt; Extensions. <code>install.sh --uninstall</code> removes the installer&#39;s download folder.</p></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="cta-title">
+        <div class="rail">
+          <div class="card cta">
+            <div>
+              <h2 id="cta-title">One command to install. Updates come to you.</h2>
+              <p class="muted">No Python, Node or configuration files. Claude offers each new version on a card in the chat, and nothing installs until you agree.</p>
+            </div>
+            <p class="muted cta-note">
+              Installing for someone as an AI agent? Follow the
+              <a href="#install-agents">agent guide</a>.
+            </p>
+            <div class="codebox"><div class="codebar"><span>Terminal</span><button class="copy" type="button" aria-label="Copy install command">Copy</button></div><pre tabindex="0"><code>curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | bash</code></pre></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="rule">
+      <div class="rail">
+        <p>Snyk Projects and Issues (unofficial) · generated from the project README for version 0.2.0.</p>
+        <p class="links"><a href="summary.md">summary.md</a><a href="llms.txt">llms.txt</a><a href="install.sh">install.sh</a></p>
+      </div>
+    </footer>
+
+    <div class="sr-only" role="status" id="copy-status"></div>
+    <script>
+      (function () {
+        var status = document.getElementById("copy-status");
+        function fallbackCopy(text) {
+          var area = document.createElement("textarea");
+          area.value = text;
+          area.setAttribute("readonly", "");
+          area.style.position = "fixed";
+          area.style.opacity = "0";
+          var previous = document.activeElement;
+          document.body.appendChild(area);
+          area.select();
+          var ok = false;
+          try {
+            ok = document.execCommand("copy");
+          } catch (e) {}
+          document.body.removeChild(area);
+          if (previous && previous.focus) previous.focus();
+          return ok;
+        }
+        function copyText(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).then(
+              function () {
+                return true;
+              },
+              function () {
+                return fallbackCopy(text);
+              },
+            );
+          }
+          return Promise.resolve(fallbackCopy(text));
+        }
+        Array.prototype.forEach.call(document.querySelectorAll(".codebox .copy"), function (btn) {
+          var label = btn.textContent;
+          var aria = btn.getAttribute("aria-label");
+          var timer;
+          btn.addEventListener("click", function () {
+            var pre = btn.closest(".codebox").querySelector("pre");
+            copyText(pre.textContent.replace(/\n$/, "")).then(function (ok) {
+              clearTimeout(timer);
+              if (!ok) {
+                // Leave the command selected so the user can copy it with the keyboard.
+                var range = document.createRange();
+                range.selectNodeContents(pre);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }
+              var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+              btn.textContent = ok ? "Copied" : mac ? "Press ⌘C" : "Press Ctrl+C";
+              btn.classList.toggle("done", ok);
+              btn.setAttribute("aria-label", ok ? "Copied" : "Copy failed");
+              status.textContent = ok ? "Copied to clipboard" : "Copy failed";
+              timer = setTimeout(function () {
+                btn.textContent = label;
+                btn.classList.remove("done");
+                btn.setAttribute("aria-label", aria);
+                status.textContent = "";
+              }, 1500);
+            });
+          });
+        });
+
+        // The small-screen menu closes on Escape (returning focus to its button), on a link and on an outside click.
+        var menu = document.querySelector(".menu");
+        if (menu) {
+          var summary = menu.querySelector("summary");
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && menu.open) {
+              menu.open = false;
+              summary.focus();
+            }
+          });
+          menu.addEventListener("click", function (e) {
+            if (e.target.closest("a")) menu.open = false;
+          });
+          document.addEventListener("click", function (e) {
+            if (menu.open && !menu.contains(e.target)) menu.open = false;
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

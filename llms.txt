@@ -1,0 +1,67 @@
+# Snyk Projects and Issues (unofficial)
+
+> Ask Claude about your Snyk account. It lists your repos and projects with their issue counts, explains issues, plans the fixes that clear the most of them and checks whether a package is vulnerable, using your own Snyk token. It is read-only unless you turn on write tools. A Claude Desktop extension (.mcpb) for macOS, version 0.2.0.
+
+## Install (agents)
+
+1. Continue only if `uname -s` prints `Darwin` and `/Applications/Claude.app` exists. Otherwise tell the user it needs a Mac with Claude Desktop 2.7032.0 or later.
+2. Run the installer with this one command. It downloads the extension, checks its SHA-256 (nothing changes before the check passes) and opens Claude Desktop's install dialog. With no terminal it never prompts, and `--no-wait` makes it exit once the dialog is open. It exits non-zero, with the reason on stderr, if anything fails; exit 0 means it finished its steps, not that Claude Desktop installed the extension.
+
+```bash
+curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | SNYK_INSTALL_TTY=/dev/null bash -s -- --no-wait
+```
+
+3. Ask the user to click Install in the dialog Claude Desktop opened (they can leave its settings blank), and to switch the extension on if Claude Desktop shows it off (Settings > Extensions; one click, then wait a few seconds). You can't do these for them. Never ask the user for their Snyk token or paste one yourself: the installer asks them in the terminal with hidden input (or, with no terminal, Claude shows a card in the chat later), and it goes straight to their macOS Keychain.
+
+### Verify
+
+Run the installer again with `--status` (after `bash -s --`):
+
+```bash
+curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | bash -s -- --status
+```
+
+It should show `Ready: yes` (the `Extension:` line at the `Latest:` version with `enabled`, and `Server: running since …`). Otherwise its `Next:` line says the one thing left to do: tell the user, then check again. When it is ready, ask the user to start a new chat in Claude Desktop (chats opened while the extension was off never see its tools) and ask Claude about their Snyk projects; if no token is saved yet, Claude shows a card and only the user can add one (`--set-token` in a terminal does the same).
+
+### Updates
+
+The extension keeps itself up to date. Once a day it checks this site for a newer version, and when there is one Claude shows the user an update card in Claude Desktop. Update now downloads the new version, checks its SHA-256 and opens Claude Desktop's install dialog; it is installed only when the user clicks Install there. Not now hides that version for a week. You can't click these for the user, and nothing installs until they do. To update straight away, run the same install command again (the user still clicks Install). Settings and the Snyk token are kept.
+
+## What it can and can't do
+
+- It reads what your token can read: the organisation you choose in the settings (by default your account's default one), and nothing else. What you can change depends on your Snyk role, not on this extension.
+- Lists are compact because accounts can hold thousands of projects and issues. Claude can group them on the server (`group_by`), page through them, or write everything to a file in `~/Downloads/snyk-exports` (with a summary) when it needs every row.
+- Snyk can't filter issues by collection, folder or repo itself, so for those scopes this tool reads the organisation's matching issues and keeps the right ones (up to 20,000): narrowing by severity keeps it fast.
+- It reads from Snyk's API; it does not scan anything itself, except through the local Snyk CLI if you have it installed.
+- Snyk matches package versions exactly, so "where is this used" needs a name and a version.
+- It can't open fix pull requests or retest a project on demand: Snyk's public API has no such calls (Snyk does both itself, from your project settings).
+- It never deletes anything in Snyk. Write tools can add, ignore, change and deactivate, and most can be undone.
+- Group-level views and webhooks need rights your token may not have; Claude says so instead of guessing.
+
+## Troubleshooting
+
+| Message or symptom | What to do |
+|---|---|
+| Claude shows a card asking for a Snyk token | None is saved, or Snyk rejected it (expired or revoked). Follow the card: open Snyk, sign in with your company single sign-on, create a token and paste it |
+| "That token didn't work" on the card | Copy the whole token again (Snyk shows it once), check it hasn't expired, and that you made it in your own Snyk account |
+| The installer says it needs a terminal for `--set-token` | Run it in Terminal yourself: the token is never typed into a chat |
+| `Snyk 403` for one tool | Your Snyk role doesn't allow it; ask an organisation admin, or use another tool |
+| `Snyk 429` | Snyk is throttling you; reads retry automatically, so wait a minute and ask again |
+| `where_used` asks for an exact version | Snyk matches package versions exactly: give `name@version` |
+| `scan_local_repo` says the CLI isn't installed | `brew install snyk`, or set its path in the extension's settings |
+| The extension is listed twice in Claude Desktop | An old manual entry is still in `claude_desktop_config.json`; remove it |
+| A collection or folder question is slow | Snyk can't filter issues by collection or folder, so it reads the organisation's matching issues: ask for one severity (for example critical) to keep it fast |
+| Claude can't open an export | Exports are in `~/Downloads/snyk-exports` (or the folder you chose); the path returned is the real one, not a `/var` alias |
+| Claude doesn't see the tools | Start a new chat after the extension is switched on |
+
+## Update and remove
+
+It checks for new versions itself: once a day it reads the landing page, and when there is one Claude shows an update card in the chat. **Update now** downloads the new version, checks its SHA-256 and opens Claude Desktop's install dialog; you click Install. **Not now** hides that version for a week. Turn the daily check off with **Check for updates** in the extension's settings. Running the install command again also updates. Your settings and your Snyk token are kept.
+
+To remove it: ask Claude to "Sign out of Snyk" (this deletes the token from your Keychain), then uninstall it in Claude Desktop under Settings > Extensions. `install.sh --uninstall` removes the installer's download folder.
+
+## Links
+
+- [Landing page](https://wpp-jamie-mills.github.io/snyk-mcp-site/): install guides for people and agents
+- [Summary](https://wpp-jamie-mills.github.io/snyk-mcp-site/summary.md): this project as one markdown page
+- [Installer](https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh): the script the install command runs
