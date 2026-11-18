@@ -1,0 +1,101 @@
+# Snyk Projects and Issues (unofficial)
+
+> Ask Claude about your Snyk account. It lists your repos and projects with their issue counts, explains issues, plans the fixes that clear the most of them and checks whether a package is vulnerable, using your own Snyk token. It is read-only unless you turn on write tools. A Claude Desktop extension (.mcpb) for macOS, version 0.3.0. Where an organisation blocks extensions, the same release runs as a Claude Desktop mcpServers entry (see "Install as an mcpServers entry").
+
+## Install (agents)
+
+1. Continue only if `uname -s` prints `Darwin` and `/Applications/Claude.app` exists. Otherwise tell the user it needs a Mac with Claude Desktop 2.7032.0 or later.
+2. Run the installer with this one command. It downloads the extension, checks its SHA-256 (nothing changes before the check passes) and opens Claude Desktop's install dialog. With no terminal it never prompts, and `--no-wait` makes it exit once the dialog is open. It exits non-zero, with the reason on stderr, if anything fails; exit 0 means it finished its steps, not that Claude Desktop installed the extension.
+
+```bash
+curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | SNYK_INSTALL_TTY=/dev/null bash -s -- --no-wait
+```
+
+3. Ask the user to click Install in the dialog Claude Desktop opened (they can leave its settings blank), and to switch the extension on if Claude Desktop shows it off (Settings > Extensions; one click, then wait a few seconds). You can't do these for them. Never ask the user for their Snyk token or paste one yourself: the installer asks them in the terminal with hidden input (or, with no terminal, Claude shows a card in the chat later), and it goes straight to their macOS Keychain.
+
+### Verify
+
+Run the installer again with `--status` (after `bash -s --`):
+
+```bash
+curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | bash -s -- --status
+```
+
+Its `Ready:` line should say `yes` (the `Extension:` line at the `Latest:` version with `enabled`, and the `Server:` line `running since …`). Otherwise its `Next:` line says the one thing left to do: tell the user, then check again. When it is ready, ask the user to start a new chat in Claude Desktop (chats opened while the extension was off never see its tools) and ask Claude about their Snyk projects; if no token is saved yet, Claude shows a card and only the user can add one (`--set-token` in a terminal does the same). If the `Extension:` line says `blocked by your organisation` (Claude Desktop shows "Extension is not approved for your organization"), switching it on can't help: follow "Install as an mcpServers entry" below.
+
+### Updates
+
+The extension keeps itself up to date. Once a day it checks this site for a newer version, and when there is one Claude shows the user an update card in Claude Desktop. Update now downloads the new version, checks its SHA-256 and opens Claude Desktop's install dialog; it is installed only when the user clicks Install there. Not now hides that version for a week. You can't click these for the user, and nothing installs until they do. To update straight away, run the same install command again (the user still clicks Install). Settings and the Snyk token are kept.
+
+## Install as an mcpServers entry (when the organisation blocks the extension)
+
+These steps are for an AI agent installing the entry for someone. Without a terminal the installer asks nothing, so you ask the user, and you act only on their answers. Never ask for a password or a token: nothing here needs one. The user adds their Snyk token themselves, in Terminal or on a card in the chat, never through you.
+
+1. Run `curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | bash -s -- --status`. Continue only if its `Extension:` line says `blocked by your organisation` (Claude Desktop shows "Extension is not approved for your organization"), or the user asks for the entry.
+2. Read the `uv:` line of `--status`: it shows where uv is, or `not installed`. If uv is not installed, ask the user whether you may install it, and say how: with Homebrew if they have it (`brew install uv`; check with `command -v brew`, or for `/opt/homebrew/bin/brew` or `/usr/local/bin/brew`), otherwise uv's own release from GitHub, checked against a SHA-256 pinned in the installer, into `~/.local/bin` (shell profiles aren't changed). Add `--install-uv` only if they agree, and don't install uv any other way. If they say no, stop: the entry can't run without uv.
+3. Ask the user whether the installer may add the `snyk-mcp` entry to Claude Desktop's `claude_desktop_config.json` (it keeps a dated backup and everything else in the file). If `--status` has an `Entry:` line saying Claude Desktop's `snyk-mcp` entry runs something else, say that it will be pointed at this release instead (its `env` settings are kept). `--yes` stands for this go-ahead, and only this.
+
+Then run this, adding `--install-uv` if the user agreed to install uv:
+
+```bash
+curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | SNYK_INSTALL_TTY=/dev/null bash -s -- --entry --yes --no-wait
+```
+
+It checks everything and asks its questions before it changes anything, and exits non-zero with the reason on stderr if anything fails (without uv and without `--install-uv`, or without `--yes`, it stops and says so). If it says `brew install uv failed`, stop and tell the user: they install uv themselves (https://docs.astral.sh/uv/getting-started/installation/), then you run the command again. Exit 0 means it finished its steps, not that Claude Desktop runs the entry yet.
+
+Ask the user to quit Claude Desktop (⌘Q) and open it again. Don't quit it yourself: you may be running inside it. Then run `--status` again. The `Ready:` line should say `yes`, the `Entry server:` line `running since …` and the `Entry:` line `release <the Latest: version>, in Claude Desktop's config as snyk-mcp`; otherwise do what its `Next:` line says. When `Next:` names an `--entry` command, it is the people's form: ask for the same go-aheads as above and run it in the no-terminal form above. Then ask the user to start a new chat and ask about their Snyk projects. If the `Snyk token:` line says `none saved`, Claude shows a card where the user creates and pastes a token; only they can do that.
+
+What the installer does: with `--install-uv` and no uv, it installs uv as above. It downloads the same release as the extension (`latest.mcpb`) and checks its SHA-256, then runs that release's own installer, which installs it in `~/Library/Application Support/snyk-mcp/server`. It then adds the `snyk-mcp` entry to `~/Library/Application Support/Claude/claude_desktop_config.json`: a dated backup first, every other key and the file's permissions kept, an existing entry's `env` kept, a linked file changed where it really is (the link stays), and a file it can't read (or read as JSON), or a link it can't follow, left alone with nothing else changed. Its JSON rewrite moves keys made only of digits first and rounds numbers beyond 2^53; Claude Desktop's config has neither.
+
+- **Updates:** the update card's **Update now** installs the new release beside the running one; the user quits and reopens Claude Desktop to start it. Running the `--entry` command again also updates.
+- **Settings in the entry:** write tools are off until the user turns them on, on the settings card (*"show my Snyk settings"*). A setting in the entry's `env` wins and is locked on the settings card: `SNYK_MCP_ORG`, `SNYK_MCP_ALLOW_WRITES`, `SNYK_MCP_CHECK_UPDATES`, `SNYK_MCP_EXPORT_ROOT`, `SNYK_MCP_CLI_PATH` and `SNYK_MCP_APPROVALS`. None is a secret: the token is kept in the macOS Keychain. Without them, the settings card saves settings in `~/Library/Application Support/snyk-mcp/settings.toml`.
+- **Approval cards:** with approvals on and write tools on, `import_repo`, `ignore_issue`, `unignore_issue`, `update_project`, `set_project_active` and `manage_collection` wait for the user's **Approve** on a card. Reads, `import_status` and `scan_local_repo` don't ask. To make the card the only gate, the user sets the entry's **Interactive tools** to **Always allow** in Settings > Customize > Connectors; their organisation can still require Claude Desktop's own prompt for tools that make changes.
+- **Remove,** with the user's go-ahead: `curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | SNYK_INSTALL_TTY=/dev/null bash -s -- --entry --uninstall --yes`. It removes the entry (keeping a backup) and the installed release; settings, the Snyk token and uv stay. The user then quits and reopens Claude Desktop.
+
+## What it can and can't do
+
+- It reads what your token can read: the organisation you choose in the settings (by default your account's default one), and nothing else. What you can change depends on your Snyk role, not on this extension.
+- Lists are compact because accounts can hold thousands of projects and issues. Claude can group them on the server (`group_by`), page through them, or write everything to a file in `~/Downloads/snyk-exports` (with a summary) when it needs every row.
+- Snyk can't filter issues by collection, folder or repo itself, so for those scopes this tool reads the organisation's matching issues and keeps the right ones (up to 20,000): narrowing by severity keeps it fast.
+- It reads from Snyk's API; it does not scan anything itself, except through the local Snyk CLI if you have it installed.
+- Snyk matches package versions exactly, so "where is this used" needs a name and a version.
+- It can't open fix pull requests or retest a project on demand: Snyk's public API has no such calls (Snyk does both itself, from your project settings).
+- It never deletes anything in Snyk. Write tools can add, ignore, change and deactivate, and most can be undone.
+- Group-level views and webhooks need rights your token may not have; Claude says so instead of guessing.
+
+## Troubleshooting
+
+| Message or symptom | What to do |
+|---|---|
+| Claude shows a card asking for a Snyk token | None is saved, or Snyk rejected it (expired or revoked). Follow the card: open Snyk, sign in with your company single sign-on, create a token and paste it |
+| "That token didn't work" on the card | Copy the whole token again (Snyk shows it once), check it hasn't expired, and that you made it in your own Snyk account |
+| The installer says it needs a terminal for `--set-token` | Run it in Terminal yourself: the token is never typed into a chat |
+| `Snyk 403` for one tool | Your Snyk role doesn't allow it; ask an organisation admin, or use another tool |
+| `Snyk 429` | Snyk is throttling you; reads retry automatically, so wait a minute and ask again |
+| `where_used` asks for an exact version | Snyk matches package versions exactly: give `name@version` |
+| `scan_local_repo` says the CLI isn't installed | `brew install snyk`, or set its path in the extension's settings |
+| "Extension is not approved for your organization" | Your organisation blocks the extension; switching it on won't help. Install the same release as an `mcpServers` entry instead: see [If your organisation blocks the extension](https://wpp-jamie-mills.github.io/snyk-mcp-site/#if-your-organisation-blocks-the-extension) |
+| Claude sees every Snyk tool twice | The extension and the `snyk-mcp` entry are both on. Keep one: switch the extension off in Settings > Extensions, or remove the entry with `curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh \| bash -s -- --entry --uninstall` (it asks first; with no terminal it needs `--yes`, the user's go-ahead) |
+| With the entry, Claude has only some of the tools (for example only the settings tool) | Claude Desktop keeps tool permissions by connector name, so an earlier connector called `snyk-mcp` can leave tools Blocked. Open Settings > Customize > Connectors > snyk-mcp and set the tool groups to Needs approval or Always allow; the tools come back at once |
+| The entry isn't running after you reopened Claude Desktop | Start a new chat first. Then run the installer with `--status`: it says the one thing left to do. Claude Desktop's log for the entry is `~/Library/Logs/Claude/mcp-server-snyk-mcp.log` (read it from the last `Initializing server...` line). If the entry is gone from `claude_desktop_config.json`, run the entry command again |
+| The installer says `brew install uv failed` | Homebrew couldn't install uv. Install it yourself (https://docs.astral.sh/uv/getting-started/installation/), then run the entry command again |
+| You'd rather set the entry up without the installer | [INSTALL.md](https://wpp-jamie-mills.github.io/snyk-mcp-site/INSTALL.md) ("The entry by hand") has the steps: check the release's SHA-256, run its own `install-release`, and add the entry it prints to `claude_desktop_config.json` |
+| Claude Desktop asks before a change even though you chose Always allow | Your organisation's policy can keep Claude Desktop's own prompt for tools that make changes. With approval cards on, you then approve twice; the entry can't change that |
+| You can't create a personal access token in Snyk | Your Snyk role may not allow personal access tokens; ask a Snyk organisation admin. Nothing in this tool works around it |
+| A collection or folder question is slow | Snyk can't filter issues by collection or folder, so it reads the organisation's matching issues: ask for one severity (for example critical) to keep it fast |
+| Claude can't open an export | Exports are in `~/Downloads/snyk-exports` (or the folder you chose); the path returned is the real one, not a `/var` alias |
+| Claude doesn't see the tools | Start a new chat after the extension is switched on |
+
+## Update and remove
+
+It checks for new versions itself: once a day it reads the landing page, and when there is one Claude shows an update card in the chat. **Update now** downloads the new version, checks its SHA-256 and opens Claude Desktop's install dialog; you click Install. **Not now** hides that version for a week. Turn the daily check off with **Check for updates** in the extension's settings. Running the install command again also updates. Your settings and your Snyk token are kept.
+
+To remove it: ask Claude to "Sign out of Snyk" (this deletes the token from your Keychain), then uninstall it in Claude Desktop under Settings > Extensions. `install.sh --uninstall` removes the installer's download folder.
+
+With the `mcpServers` entry, the same update card's **Update now** installs the new release beside the running one, with no install dialog; quit and reopen Claude Desktop to start it. Turn the check off on the settings card (*"show my Snyk settings"*). To remove the entry, run `curl -fsSL https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh | bash -s -- --entry --uninstall`: it asks first (with no terminal it needs `--yes`, the user's go-ahead) and keeps a backup of Claude Desktop's config, your settings and your token.
+
+## Links
+
+- [Landing page](https://wpp-jamie-mills.github.io/snyk-mcp-site/): install guides for people and agents
+- [Summary](https://wpp-jamie-mills.github.io/snyk-mcp-site/summary.md): this project as one markdown page
+- [Installer](https://wpp-jamie-mills.github.io/snyk-mcp-site/install.sh): the script the install command runs
